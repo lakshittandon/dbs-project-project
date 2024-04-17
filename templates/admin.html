@@ -54,7 +54,7 @@
     window.onload = async function fetchProjects() {
         try {
           let response = await fetch(
-            "https://dbs-project-project.vercel.app/api/users/admin/projects"
+            "https://projectmanagmentsystem.vercel.app/api/users/admin/projects"
           );
           if (response.ok) {
             let data = await response.json();
@@ -110,6 +110,6 @@
           console.error("Error:", error);
         }
       };
-  </script>  
+  </script>
 </body>
 </html>
