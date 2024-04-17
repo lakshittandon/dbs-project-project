@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Users</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <!-- Custom CSS -->
+  <style>
+    /* Add custom styles here */
+    .card:hover {
+      cursor: pointer;
+    }
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">Boardly</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <!-- Option to navigate to projects -->
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for("allprojects")}}">Projects</a>
+          </li>
+        </ul>
+        <!-- Option to log out -->
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for("home")}}">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Container for users display -->
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">All Users</h1>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="usersContainer">
+      <!-- Dynamic generation of user cards will go here -->
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ZXp3KLg8EJG0lyGK1wyZp2KxX1b+bYmlr36H0QnMj3gCIft5OdFVr5ft76viqn+i" crossorigin="anonymous"></script>
+  <!-- Custom JavaScript -->
+  <script>
+    window.onload = async function fetchAllUsers() {
+      try {
+        let response = await fetch(
+          `http://127.0.0.1:5000/api/users`
+        );
+        if (response.ok) {
+          let data = await response.json();
+          let userData = data;
+          console.log(userData);
+          let userDisplay = document.getElementById('usersContainer');
+  
+          userData.forEach((user) => {
+            // Get the UserID dynamically for each user
+            let USER_ID = user.UserID;
+  
+            // Create card element for each user
+            let card = document.createElement("div");
+            card.classList.add("card", "mb-3");
+  
+            // Create card body
+            let cardBody = document.createElement("div");
+            cardBody.classList.add(
+              "card-body",
+              "d-flex",
+              "flex-column",
+              "align-items-start"
+            );
+  
+            // Create username
+            let username = document.createElement("h5");
+            username.classList.add("card-title", "mb-1");
+            username.textContent = user.Username;
+  
+            // Create email
+            let email = document.createElement("p");
+            email.classList.add("card-text", "mb-1");
+            email.textContent = "Email: " + user.Email;
+  
+            // Create joining date
+            let joiningDate = document.createElement("p");
+            joiningDate.classList.add("card-text", "text-muted", "small");
+            joiningDate.textContent =
+              "Joining Date: " + new Date(user.JoiningDate).toLocaleDateString();
+            
+            // Create projects list
+            let projects = document.createElement("ul");
+            projects.classList.add("list-group", "mb-0");
+            user.Projects.forEach(project => {
+              let projectItem = document.createElement("li");
+              projectItem.classList.add("list-group-item", "border-0", "p-0");
+              projectItem.textContent = `Project ID: ${project.ProjectID}, Name: ${project.ProjectName}`;
+              projects.appendChild(projectItem);
+            });
+  
+            // Append elements to card body
+            cardBody.appendChild(username);
+            cardBody.appendChild(email);
+            cardBody.appendChild(joiningDate);
+            cardBody.appendChild(projects);
+  
+            // Append card body to card
+            card.appendChild(cardBody);
+  
+            // Append card to user display
+            userDisplay.appendChild(card);
+          });
+        } else {
+          console.error("Failed to fetch users:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+  </script>
+</body>
+</html>

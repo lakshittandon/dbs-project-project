@@ -1,0 +1,17 @@
+.login_card {
+  border: 1px solid rgb(135, 135, 135);
+  padding: 30px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 10px;
+  background-color: whitesmoke;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  border-radius: 5px;
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trello Clone</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />    
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .column {
+      flex: 1;
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .column h3 {
+      margin-bottom: 10px;
+    }
+
+    .task {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">boardly</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{ url_for('login') }}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for("home")}}">Logout</a>
+        </li>
+        <li class="nav-item">
+          <a class="projects_link nav-link" href="{{url_for("projectusers",user_id=user_id)}}">Projects</a>
+        </li>
+      </ul>
+      <span class="navbar-text">
+        Username: {{ username }} | User ID: {{ user_id }}
+      </span>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  
+  <div class="row">
+    <!-- Todo Column -->
+    <div class="col-4">
+      <div class="column" id="todo-column" ondrop="drop(event, 'todo')" ondragover="allowDrop(event)">
+        <h3>To Do</h3>
+        <!-- Task cards for "To Do" -->
+        {% for task in todo_tasks %}
+        <div class="card task bg-primary" id="task{{ task.TaskID }}" data-taskid="{{ task.TaskID }}" data-title="{{ task.Title }}" data-description="{{ task.Description }}" data-duedate="{{ task.DueDate }}" data-status="{{ task.Status }}" data-assigneeuserid="{{ task.UserID }}" data-projectid="{{ task.ProjectID }}" draggable="true" ondragstart="drag(event)">
+          <div class="card-body">
+            <h5 class="card-title">{{ task.Title }}</h5>
+            <p class="card-text">Description: {{ task.Description }}</p>
+            <p class="card-text">Due Date: {{ task.DueDate }}</p>
+            <p class="card-text">Status: To Do</p>
+            <p class="card-text">Assignee UserID: {{ task.UserID }}</p>
+            <p class="card-text">Project ID: {{ task.ProjectID }}</p>
+            <button class="btn btn-sm btn-warning float-end" onclick="shiftTask('task{{ task.TaskID }}', 'inprogress-column')">Start</button>
+          </div>
+        </div>
+        <script>
+          // Call the function to update task background color
+          updateTaskBackgroundColor(document.getElementById('task{{ task.TaskID }}'));
+        </script>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- In Progress Column -->
+    <div class="col-4">
+      <div class="column" id="inprogress-column" ondrop="drop(event, 'inprogress')" ondragover="allowDrop(event)">
+        <h3>In Progress</h3>
+        <!-- Task cards for "In Progress" -->
+        {% for task in inprogress_tasks %}
+        <div class="card task bg-warning" id="task{{ task.TaskID }}" data-taskid="{{ task.TaskID }}" data-title="{{ task.Title }}" data-description="{{ task.Description }}" data-duedate="{{ task.DueDate }}" data-status="{{ task.Status }}" data-assigneeuserid="{{ task.UserID }}" data-projectid="{{ task.ProjectID }}" draggable="true" ondragstart="drag(event)">
+          <div class="card-body">
+            <h5 class="card-title">{{ task.Title }}</h5>
+            <p class="card-text">Description: {{ task.Description }}</p>
+            <p class="card-text">Due Date: {{ task.DueDate }}</p>
+            <p class="card-text">Status: In Progress</p>
+            <p class="card-text">Assignee UserID: {{ task.UserID }}</p>
+            <p class="card-text">Project ID: {{ task.ProjectID }}</p>
+            <button class="btn btn-sm btn-primary float-end" onclick="shiftTask('task{{ task.TaskID }}', 'todo-column')">Back</button>
+            <button class="btn btn-sm btn-success float-end" onclick="shiftTask('task{{ task.TaskID }}', 'done-column')">Finish</button>
+          </div>
+        </div>
+        <script>
+          // Call the function to update task background color
+          updateTaskBackgroundColor(document.getElementById('task{{ task.TaskID }}'));
+        </script>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Done Column -->
+    <div class="col-4">
+      <div class="column" id="done-column" ondrop="drop(event, 'done')" ondragover="allowDrop(event)">
+        <h3>Done</h3>
+        <!-- Task cards for "Done" -->
+        {% for task in done_tasks %}
+        <div class="card task bg-success" id="task{{ task.TaskID }}" data-taskid="{{ task.TaskID }}" data-title="{{ task.Title }}" data-description="{{ task.Description }}" data-duedate="{{ task.DueDate }}" data-status="{{ task.Status }}" data-assigneeuserid="{{ task.UserID }}" data-projectid="{{ task.ProjectID }}" draggable="true" ondragstart="drag(event)">
+          <div class="card-body">
+            <h5 class="card-title">{{ task.Title }}</h5>
+            <p class="card-text">Description: {{ task.Description }}</p>
+            <p class="card-text">Due Date: {{ task.DueDate }}</p>
+            <p class="card-text">Status: Done</p>
+            <p class="card-text">Assignee UserID: {{ task.UserID }}</p>
+            <p class="card-text">Project ID: {{ task.ProjectID }}</p>
+          </div>
+        </div>
+        <script>
+          // Call the function to update task background color
+          updateTaskBackgroundColor(document.getElementById('task{{ task.TaskID }}'));
+        </script>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  
+ // Function to fetch tasks from Flask API
+async function fetchTasks(user_id) {
+  try {
+    // Fetch tasks for the specified user_id
+    let response = await fetch(`/api/tasks/user/${user_id}`);
+    let nav_project=document.querySelector('projects_link');
+    nav_project=`projectbyuser.html?id=${user_id}`
+    // Check if the response is OK
+    if (response.ok) {
+      // Parse the JSON response
+      let data = await response.json();
+      
+      // Separate tasks into different lists based on their status
+      let todo_tasks = data.filter(task => task.Status === 'Not Started');
+      let inprogress_tasks = data.filter(task => task.Status === 'In Progress');
+      let done_tasks = data.filter(task => task.Status === 'Completed');
+      console.log(todo_tasks);
+      // Call function to populate tasks into respective columns
+      populateTasks(todo_tasks, 'todo-column');
+      populateTasks(inprogress_tasks, 'inprogress-column');
+      populateTasks(done_tasks, 'done-column');
+    } else {
+      // If response is not OK, log the error
+      console.error('Failed to fetch tasks:', response.statusText);
+    }
+  } catch (error) {
+    // Log any errors that occur during the fetch operation
+    console.error('Error fetching tasks:', error);
+  }
+}
+
+  // Function to populate tasks into respective columns
+  function populateTasks(tasks, columnId) {
+    let column = document.getElementById(columnId);
+    tasks.forEach(task => {
+      let taskCard = createTaskCard(task);
+      column.appendChild(taskCard);
+      updateTaskBackgroundColor(taskCard);
+    });
+  }
+  function updateTaskBackgroundColor(task) {
+    var status = task.dataset.status;
+    switch (status) {
+      case "todo":
+        task.classList.remove("bg-warning", "bg-success");
+        task.classList.add("bg-primary");
+        break;
+      case "inprogress":
+        task.classList.remove("bg-primary", "bg-success");
+        task.classList.add("bg-warning");
+        break;
+      case "done":
+        task.classList.remove("bg-primary", "bg-warning");
+        task.classList.add("bg-success");
+        break;
+    }
+  }
+  // Function to create task card
+  function createTaskCard(task) {
+    let card = document.createElement('div');
+    card.classList.add('card', 'task');
+    card.id = `task${task.TaskID}`;
+    card.dataset.taskid = task.TaskID;
+    card.dataset.title = task.Title;
+    card.dataset.description = task.Description;
+    card.dataset.duedate = task.DueDate;
+    card.dataset.status = task.Status;
+    card.dataset.assigneeuserid = task.UserID;
+    card.dataset.projectid = task.ProjectID;
+    card.draggable = true;
+    card.addEventListener('dragstart', drag);
+    
+    let cardBody = document.createElement('div');
+    cardBody.classList.add('card-body');
+    cardBody.innerHTML = `
+      <h5 class="card-title">${task.Title}</h5>
+      <p class="card-text">Description: ${task.Description}</p>
+      <p class="card-text">Due Date: ${task.DueDate}</p>
+      <p class="card-text">Status: ${task.Status}</p>
+      <p class="card-text">Assignee UserID: ${task.UserID}</p>
+      <p class="card-text">Project ID: ${task.ProjectID}</p>
+    `;
+    
+    // Add buttons based on task status
+    if (task.Status === 'Not Started') {
+      cardBody.innerHTML += `<button class="btn btn-sm btn-warning float-end" onclick="shiftTask('task${task.TaskID}', 'inprogress-column')">Start</button>`;
+    } else if (task.Status === 'In Progress') {
+      cardBody.innerHTML += `
+        <button class="btn btn-sm btn-primary float-end" onclick="shiftTask('task${task.TaskID}', 'todo-column')">Back</button>
+        <button class="btn btn-sm btn-success float-end" onclick="shiftTask('task${task.TaskID}', 'done-column')">Finish</button>
+      `;
+    }
+    
+    card.appendChild(cardBody);
+    return card;
+  }
+
+  // Function to handle drag event
+  function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+  }
+  
+  // Function to handle drop event
+  function drop(ev, targetColumn) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    var task = document.getElementById(data);
+    ev.target.appendChild(task);
+
+    // Update task status based on the target column
+    task.dataset.status = targetColumn;
+    updateTaskBackgroundColor(task);
+    addButtons(task, targetColumn);
+  }
+
+  // Function to shift task to different column
+  function shiftTask(taskId, targetColumnId) {
+    var task = document.getElementById(taskId);
+    var targetColumn = document.getElementById(targetColumnId);
+    targetColumn.appendChild(task);
+
+    // Update task status based on the target column
+    task.dataset.status = targetColumnId.replace("-column", "");
+    updateTaskBackgroundColor(task);
+    addButtons(task, targetColumnId);
+  }
+
+  // Function to update task background color based on status
+  function updateTaskBackgroundColor(task) {
+    var status = task.dataset.status;
+    switch (status) {
+      case "todo":
+        task.classList.remove("bg-warning", "bg-success");
+        task.classList.add("bg-primary");
+        break;
+      case "inprogress":
+        task.classList.remove("bg-primary", "bg-success");
+        task.classList.add("bg-warning");
+        break;
+      case "done":
+        task.classList.remove("bg-primary", "bg-warning");
+        task.classList.add("bg-success");
+        break;
+    }
+  }
+
+  // Function to add buttons based on the target column
+  function addButtons(task, targetColumnId) {
+    // Remove existing buttons
+    var buttons = task.querySelectorAll(".btn");
+    buttons.forEach(function(button) {
+      button.remove();
+    });
+
+    // Add appropriate buttons based on the target column
+    switch (targetColumnId) {
+      case "todo-column":
+        task.querySelector(".card-body").innerHTML += '<button class="btn btn-sm btn-warning float-end" onclick="shiftTask(\'' + task.id + '\', \'inprogress-column\')">Start</button>';
+        break;
+      case "inprogress-column":
+        task.querySelector(".card-body").innerHTML += '<button class="btn btn-sm btn-primary float-end" onclick="shiftTask(\'' + task.id + '\', \'todo-column\')">Back</button>';
+        task.querySelector(".card-body").innerHTML += '<button class="btn btn-sm btn-success float-end" onclick="shiftTask(\'' + task.id + '\', \'done-column\')">Finish</button>';
+        break;
+      case "done-column":
+        // No buttons needed in the "Done" column
+        break;
+    }
+  }
+
+  // Call fetchTasks function with user_id to fetch and populate tasks
+  fetchTasks({{ user_id }});
+</script>
+
+</body>
+</html>
