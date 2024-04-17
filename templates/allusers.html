@@ -57,7 +57,7 @@
     window.onload = async function fetchAllUsers() {
       try {
         let response = await fetch(
-          `http://127.0.0.1:5000/api/users`
+          `https://dbs-project-project.vercel.app/api/users`
         );
         if (response.ok) {
           let data = await response.json();

@@ -58,7 +58,7 @@
       try {
         let userId = {{user_id}}; // Replace 2 with the actual user ID
         let response = await fetch(
-          `http://127.0.0.1:5000/api/projects/user/${userId}`
+          `https://dbs-project-project.vercel.app/api/projects/user/${userId}`
         );
         if (response.ok) {
           let data = await response.json();
