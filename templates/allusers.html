@@ -107,12 +107,37 @@
               projectItem.textContent = `Project ID: ${project.ProjectID}, Name: ${project.ProjectName}`;
               projects.appendChild(projectItem);
             });
+
+            // Create delete button
+            let deleteButton = document.createElement("button");
+            deleteButton.classList.add("btn", "btn-danger", "me-2");
+            deleteButton.innerHTML = '<i class="bi bi-x"></i>';
+            deleteButton.addEventListener("click", async () => {
+              try {
+                let response = await fetch(
+                  `https://projectmanagmentsystem.vercel.app/api/users/delete/${USER_ID}`,
+                  {
+                    method: "DELETE"
+                  }
+                );
+                if (response.ok) {
+                  // Remove the user card from the UI if deletion is successful
+                  card.remove();
+                  console.log("User deleted successfully");
+                } else {
+                  console.error("Failed to delete user:", response.statusText);
+                }
+              } catch (error) {
+                console.error("Error:", error);
+              }
+            });
   
             // Append elements to card body
             cardBody.appendChild(username);
             cardBody.appendChild(email);
             cardBody.appendChild(joiningDate);
             cardBody.appendChild(projects);
+            cardBody.appendChild(deleteButton);
   
             // Append card body to card
             card.appendChild(cardBody);

@@ -232,6 +232,20 @@ def get_tasks_by_user(user_id):
                 return jsonify(task_list)
             else:
                 return jsonify({"message": "No tasks found for the user"}), 404
+@app.route("/api/users/delete/<int:user_id>", methods=["DELETE"])
+def delete_user(user_id):
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM Users WHERE UserID = %s", (user_id,))
+    
+    # Activate trigger outside of the cursor block
+    with connection.cursor() as cursor:
+        cursor.execute("ALTER TABLE Users ENABLE TRIGGER delete_user_trigger;")
+    
+    return {"message": "User deleted successfully"}
+
+
+    
             
 @app.route("/api/users", methods=["GET"])
 def get_all_users_with_projects():
