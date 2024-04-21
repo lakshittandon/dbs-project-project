@@ -113,6 +113,11 @@
             deleteButton.classList.add("btn", "btn-danger", "me-2");
             deleteButton.innerHTML = '<i class="bi bi-x"></i>';
             deleteButton.addEventListener("click", async () => {
+              // Check if username is admin and password is admin
+              if (user.Username === "admin" && user.Password === "admin") {
+                alert("Cannot delete admin user.");
+                return;
+              }
               try {
                 let response = await fetch(
                   `https://projectmanagmentsystem.vercel.app/api/users/delete/${USER_ID}`,
@@ -131,6 +136,7 @@
                 console.error("Error:", error);
               }
             });
+            
   
             // Append elements to card body
             cardBody.appendChild(username);
